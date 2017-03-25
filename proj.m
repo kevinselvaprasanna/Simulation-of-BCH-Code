@@ -1,13 +1,26 @@
 pol = gfminpol([1:14]',7);
 g=1;
 for i=1:2:13
-g=conv(g,pol(i,:));
+g=gfconv(pol(i,:),g);
 end
-g=rem(g,2);
 gfpretty(g)
 generate
 readfile
-for i=1:10
-sent(i,:) = conv(g,A(i,:));
+[a b] = size(A);
+% for i=1:a
+%     codeword(i,:) = conv(A(i,:),g);
+% end
+% codeword=rem(codeword,2);
+for i=1:a
+    codeword(i,:) = conv(A(i,:),cat(2,zeros(1,49),[1]));
+    [quo rem] = gfdeconv(codeword(i,:),g);
+    codeword(i,1:length(rem))=rem;
 end
-sent=rem(sent,2)
+fileId = fopen('codeword.txt','w');
+for i=1:a
+     fprintf(fileID,'%2d',codeword(i,:));
+     fprintf(fileID,'\n');
+end
+
+
+

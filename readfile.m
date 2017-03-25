@@ -1,6 +1,4 @@
 fileID = fopen('msg.txt','r');
-formatSpec = '%d';
-sizeA = [10 Inf];
-A = fscanf(fileID,formatSpec,sizeA)
+A = fscanf(fileID,'%d');
+A = reshape(A,[length(A)/78 78]);
 fclose(fileID);
-A=A(:,1:78);
