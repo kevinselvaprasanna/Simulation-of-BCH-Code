@@ -35,4 +35,4 @@ for k = 3:t+1
     end
     k = k+1;
 end
-sigma = sigma(k, :)
+sigma = sigma(k, :);

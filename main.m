@@ -1,7 +1,10 @@
+clear
 % File name to store/read the message word
 msg_file_name = 'msg.txt';
 % File name to store the codeword
 code_file_name = 'codeword.txt';
+
+out_file_name = 'decoderOut.txt';
 
 % Design parameters of the code
 m = 7;
@@ -10,10 +13,10 @@ d = 15;
 t = fix((d-1)/2);
 
 bch_code = bch(m, d);
-
+bch_code = bch_code.generator_polynomial();
 % Read messages from file
-messages = read_file(msg_file_name, n - m*t);
-
+messages = read_file(msg_file_name, bch_code.k);
+[s, k] = size(messages);
 code_words = bch_code.encode(messages);
 
 % Write code words to output file
@@ -25,13 +28,13 @@ end
 fclose(code_file);
 
 rx = read_file('rx.txt', n);
-sigma = bch_code.decode(rx);
+[rec_corrected, messages] = bch_code.decode(rx);
 
-% j = 1;
-% beta = roots(sigma);
-% for i = 1:length(beta)
-%     if(beta(i) ~= 0)
-%         err(j) = log(beta(i));
-%         j = j + 1;
-%     end
-% end
+out_file = fopen(out_file_name, 'w');
+for i = 1:s
+     fprintf(out_file, '%2d', rec_corrected(i, :));
+     fprintf(out_file, '\n');
+     fprintf(out_file, '%2d', messages(i, :));
+     fprintf(out_file, '\n');
+end
+fclose(out_file);
