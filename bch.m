@@ -53,6 +53,10 @@ classdef bch
               end
           end
       end
+      function erasure_locator = find_erasure_locator(obj, rx)
+          erasure_locator = zeros(1,length(rx));
+          erasure_locator(find(rx==2)) = 1;
+      end
       function [rec_corrected, messages] = decode(obj, rec_words)
           H = parity_check(obj);
           [tot_r, r_size] = size(rec_words);
@@ -70,7 +74,7 @@ classdef bch
                       j = j + 1;
                   end
               end
-              err
+              err = err(err~=-1)
           end
           messages = rec_corrected(:, obj.n-obj.k+1:obj.n);
           % Incomplete
