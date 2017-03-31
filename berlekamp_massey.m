@@ -25,7 +25,7 @@ function [sigma] = berlekamp_massey(S, t, m)
         else
             corr = d(k).*d(li).^-1.*conv(cat(2, zeros(1, 2*(k-li)), [1]), sigma(li, :));
             for p = 1:l(k)+1
-                corr(p) = sigma(k, p) + corr(p)
+                corr(p) = sigma(k, p) + corr(p);
             end
             sigma(k+1, 1:length(corr)) = corr;
             l(k+1) = k-1;
