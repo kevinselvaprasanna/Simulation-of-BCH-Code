@@ -52,7 +52,7 @@ function [sigma] = berlekamp_massey(S, t, m)
     exp_sigma = gflog(sigma);
     str_sigma = strings(t+2, 1);
     for i=1:t+2
-        str_sigma(i, :) = mat2str(exp_sigma(i, 1:t+2));
+        str_sigma(i,:) = mat2str(exp_sigma(i,1:t+1));
     end
 
     % Printing the output in table form.

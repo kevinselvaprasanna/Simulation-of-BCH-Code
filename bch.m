@@ -104,15 +104,14 @@ classdef bch
                       j = j + 1;
                   end
               end
-
-              syndrome_check = obj.syndrome(rec_corrected, H);
-              if(syndrome_check ~= 0)
+              syndrome_check = obj.syndrome(rec_corrected,H)
+              if(syndrome_check==0)
+                  err = err(err~=-1)
+              else
                   status = 0;
                   err = zeros(1, obj.t+1)-1;    
-                  rec_corrected = zeros(1, obj.n) - 1;
-                  messages = zeros(1, obj.k) - 1;
-              else
-                  err = err(err ~= -1)
+                  rec_corrected(p,:) = zeros(1,obj.n)-1;
+                  messages = zeros(1,obj.k)-1;                  
               end
 
           end
@@ -125,36 +124,38 @@ classdef bch
         % Returns a tuple of 2 elements -
         % 1. Corrected code
         % 2. Decoded message
-
-          rec_words_with_zero = rec_words;
-
-          if(~isempty(find(rec_words == 2, 1)))
-              rec_words_with_zero(rec_words == 2) = 0;
-              [rec_corrected_with_zero, mess_zero, err_zero, status_zero] = obj.decode(rec_words_with_zero);
-              rec_words_with_one = rec_words;
-              rec_words_with_one(rec_words == 2) = 1;
-              [rec_corrected_with_one, mess_one, err_one, status_one] = obj.decode(rec_words_with_one);
-              if(length(err_zero) < length(err_one) && status_zero == 1)
-                  rec_corrected = rec_corrected_with_zero;
-                  rec_corrected
-                  messages = mess_zero;
-              else if(status_one == 1)
-                  rec_corrected = rec_corrected_with_one;
-                  rec_corrected
-                  messages = mess_one;
-                  else
-                      S=sprintf('Error');
+          [tot_r, r_size] = size(rec_words);
+          rec_corrected = rec_words;
+          for p = 1:tot_r
+              if(length(find(rec_words(p,:)==2))>0)
+                  rec_words_with_zero = rec_words(p,:);
+                  rec_words_with_zero(rec_words(p,:)==2) = 0;
+                  [rec_corrected_with_zero, mess_zero, err_zero, status_zero] = obj.decode(rec_words_with_zero);
+                  rec_words_with_one = rec_words(p,:);
+                  rec_words_with_one(rec_words(p,:)==2) = 1;
+                  [rec_corrected_with_one, mess_one, err_one, status_one] = obj.decode(rec_words_with_one);
+                  if(length(err_zero)<length(err_one) & status_zero==1)
+                      rec_corrected(p,:) = rec_corrected_with_zero;
+                      rec_corrected(p,:)
+                  else if(status_one==1)
+                      rec_corrected(p,:) = rec_corrected_with_one;
+                      rec_corrected(p,:)
+                      else
+                          S=sprintf('Error: Number of errors and erasures is beyond correctable limit 2w+e>2d');
+                          disp(S)
+                          rec_corrected(p,:) = zeros(1,obj.n)-1;
+                      end
+                  end
+              else
+                  [rec_corr mess er status] = obj.decode(rec_words(p,:));
+                  rec_corrected(p,:) = rec_corr;
+                  if(status~=1)
+                      S=sprintf('Error: Number of errors and erasures is beyond correctable limit 2w+e>2d');
                       disp(S)
                   end
               end
-          else
-              [rec_corrected, messages, ~, status] = obj.decode(rec_words);
-              rec_corrected
-              if(status ~= 1)
-                  S=sprintf('Error');
-                  disp(S)
-              end
           end
+          messages = rec_corrected(:, obj.n-obj.k+1:obj.n);
       end
    end
 end
