@@ -50,12 +50,16 @@ function [sigma] = berlekamp_massey(S, t, m)
     end
 
     exp_sigma = gflog(sigma);
-    str_sigma = string(zeros(t+2,1)-1);
-    for i=1:t+2
-        str_sigma(i,:) = mat2str(exp_sigma(i,1:t+1));
+    try
+        str_sigma = strings(t+2, 1);
+        S = string(zeros(9,1)-1)
+        for i=1:t+2
+            str_sigma(i,:) = mat2str(exp_sigma(i,1:t+1));
+        end
+        % Printing the output in table form.
+        T = table([-0.5;(0:t)'], str_sigma ,gflog(d),l,(2*[-0.5;(0:t)']-l),'VariableNames',{'Step','Sigma','Discrepency','Degree','Step_degree_difference'})
+    catch exception
+        exception
     end
-
-    % Printing the output in table form.
-    T = table([-0.5;(0:t)'], str_sigma ,gflog(d),l,(2*[-0.5;(0:t)']-l),'VariableNames',{'Step','Sigma','Discrepency','Degree','Step_degree_difference'})
     sigma = sigma(k, :);
 end
