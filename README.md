@@ -25,9 +25,9 @@ Instructions to run the code
 
 Contents
 --------
-* main.m - Main file that calls the encoder and decoder of the BCH codes.
-* bch.m - A bch class which implements encode, decode and various other methods.
-* berlekamp_massey.m - Code for BM Algorithm used to get the coefficients of the error locator polynomial.
-* gflog.m - logarithm of elements in the finite field.
-* read_file.m - Function to read the inputs.
-* gen_msg.m - Generates random messages, used for testing.
+* `main.m` - Main file that calls the encoder and decoder of the BCH codes.
+* `bch.m` - A bch class which implements encode, decode and various other methods.
+* `berlekamp_massey.m` - Code for BM Algorithm used to get the coefficients of the error locator polynomial.
+* `gflog.m` - logarithm of elements in the finite field.
+* `read_file.m` - Function to read the inputs.
+* `gen_msg.m` - Generates random messages, used for testing.
