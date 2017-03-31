@@ -43,7 +43,7 @@ classdef bch
          % Systematic encoding
          for i = 1:s
            code_words(i, :) = conv(messages(i, :), cat(2, zeros(1, obj.n-obj.k), 1));
-           [quo, rem] = gfdeconv(code_words(i,:), obj.gen_poly);
+           [~, rem] = gfdeconv(code_words(i,:), obj.gen_poly);
            code_words(i, 1:length(rem))=rem;
          end
       end
@@ -82,7 +82,7 @@ classdef bch
 
           status = 1;
           H = parity_check(obj);
-          [tot_r, r_size] = size(rec_words);
+          [tot_r, ~] = size(rec_words);
           rec_corrected = rec_words;
 
           for p = 1:tot_r
@@ -128,13 +128,13 @@ classdef bch
 
           rec_words_with_zero = rec_words;
 
-          if(length(find(rec_words == 2)) > 0)
+          if(~isempty(find(rec_words == 2, 1)))
               rec_words_with_zero(rec_words == 2) = 0;
               [rec_corrected_with_zero, mess_zero, err_zero, status_zero] = obj.decode(rec_words_with_zero);
               rec_words_with_one = rec_words;
               rec_words_with_one(rec_words == 2) = 1;
               [rec_corrected_with_one, mess_one, err_one, status_one] = obj.decode(rec_words_with_one);
-              if(length(err_zero) < length(err_one) & status_zero == 1)
+              if(length(err_zero) < length(err_one) && status_zero == 1)
                   rec_corrected = rec_corrected_with_zero;
                   rec_corrected
                   messages = mess_zero;
@@ -143,14 +143,16 @@ classdef bch
                   rec_corrected
                   messages = mess_one;
                   else
-                      'Error'
+                      S=sprintf('Error');
+                      disp(S)
                   end
               end
           else
-              [rec_corrected messages err status] = obj.decode(rec_words);
+              [rec_corrected, messages, ~, status] = obj.decode(rec_words);
               rec_corrected
               if(status ~= 1)
-                  'Error'
+                  S=sprintf('Error');
+                  disp(S)
               end
           end
       end
