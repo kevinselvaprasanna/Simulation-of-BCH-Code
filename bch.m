@@ -54,8 +54,13 @@ classdef bch
           end
       end
       function erasure_locator = find_erasure_locator(obj, rx)
-          erasure_locator = zeros(1,length(rx));
-          erasure_locator(find(rx==2)) = 1;
+          alpha = gf(2, obj.m);
+          r_size = length(rx);
+          ind = find(rx == 2);
+          erasure_locator = 1;
+          for j = 1:r_size
+              erasure_locator = gfconv(erasure_locator, [alpha^ind(j) 1]);
+          end
       end
       function [rec_corrected, messages] = decode(obj, rec_words)
           H = parity_check(obj);
@@ -63,7 +68,10 @@ classdef bch
           rec_corrected = rec_words;
           for p = 1:tot_r
               S = syndrome(obj, rec_words(p, :), H);
-              sigma = berlekamp_massey(S, obj.t, obj.m);
+              erasure_loc_poly = find_erasure_locator(obj, rec_words(p, :));
+              e = length(erasure_loc_poly);
+              T = gfconv(S, erasure_loc_poly);
+              sigma = berlekamp_massey(T(e+1, end), obj.t, obj.m);
               beta = roots(sigma);
               j = 1;
               err = zeros(1, obj.t)-1;
