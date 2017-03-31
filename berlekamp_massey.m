@@ -2,7 +2,8 @@ function [sigma] = berlekamp_massey(S, t, m)
     sigma=gf(zeros(t+2,t+1), m);
     k = 1;
     sigma(1, 1) = 1;
-    d=gf(zeros(1, 2*t), m);
+    d=gf(zeros(t+2, 1), m);
+    l=zeros(t+2, 1);
     d(k)=gf(1, m);
     l(k) = 0;
     k = k + 1;
@@ -35,5 +36,11 @@ function [sigma] = berlekamp_massey(S, t, m)
         end
         k = k+1;
     end
+    exp_sigma = gflog(sigma);
+    str_sigma = strings(t+2,1);
+    for i=1:t+2
+        str_sigma(i,:) = mat2str(exp_sigma(i,1:t+2));
+    end
+    T = table([-0.5;(0:t)'], str_sigma ,gflog(d),l,(2*[-0.5;(0:t)']-l),'VariableNames',{'Step','Sigma','Discrepency','Degree','Step_degree_difference'})
     sigma = sigma(k, :);
 end

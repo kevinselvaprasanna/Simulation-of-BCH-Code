@@ -60,6 +60,8 @@ classdef bch
           rec_corrected = rec_words;
           for p = 1:tot_r
               S = syndrome(obj, rec_words(p, :), H);
+              syndrome_exp = gflog(S);
+              syndrome_exp
               sigma = berlekamp_massey(S, obj.t, obj.m);
               beta = roots(sigma);
               j = 1;
@@ -94,9 +96,11 @@ classdef bch
               [rec_corrected_with_one, mess_one, err_one, status_one] = obj.decode(rec_words_with_one);
               if(length(err_zero)<length(err_one) & status_zero==1)
                   rec_corrected = rec_corrected_with_zero;
+                  rec_corrected
                   messages = mess_zero;
               else if(status_one==1)
                   rec_corrected = rec_corrected_with_one;
+                  rec_corrected
                   messages = mess_one;
                   else
                       'Error'
@@ -104,6 +108,7 @@ classdef bch
               end
           else
               [rec_corrected messages err status] = obj.decode(rec_words);
+              rec_corrected
               if(status~=1)
                   'Error'
               end
