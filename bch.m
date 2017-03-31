@@ -47,13 +47,14 @@ classdef bch
       function S = syndrome(obj, rx, H)
           S = gf(zeros(1, 2*obj.t), obj.m);
           for i = 1:2*obj.t
-              ch = H(i,:).*rx(1,:);
+              ch = H(i,:).*rx;
               for j = 1:obj.n
                   S(i) = S(i)+ch(j);
               end
           end
       end
-      function [rec_corrected, messages, err] = decode(obj, rec_words)
+      function [rec_corrected, messages, err, status] = decode(obj, rec_words)
+          status = 1;
           H = parity_check(obj);
           [tot_r, r_size] = size(rec_words);
           rec_corrected = rec_words;
@@ -62,7 +63,7 @@ classdef bch
               sigma = berlekamp_massey(S, obj.t, obj.m);
               beta = roots(sigma);
               j = 1;
-              err = zeros(1, obj.t)-1;
+              err = zeros(1, obj.t+1)-1;
               for i = 1:length(beta)
                   if(beta(i) ~= 0)
                       rec_corrected(p, log(beta(i))+1) = rem(rec_words(p, log(beta(i))+1) + 1, 2);
@@ -70,24 +71,42 @@ classdef bch
                       j = j + 1;
                   end
               end
-              err = err(err~=-1)
+              syndrome_check = obj.syndrome(rec_corrected,H);
+              if(syndrome_check~=0)
+                  status = 0;
+                  err = zeros(1, obj.t+1)-1;    
+                  rec_corrected = zeros(1,obj.n)-1;
+                  messages = zeros(1,obj.k)-1;
+              else
+                  err = err(err~=-1)
+              end
           end
           messages = rec_corrected(:, obj.n-obj.k+1:obj.n);
           % Incomplete
       end
       function  [rec_corrected, messages] = decode_with_erasures(obj, rec_words)
           rec_words_with_zero = rec_words;
-          rec_words_with_zero(rec_words==2) = 0;
-          [rec_corrected_with_zero, mess_zero, err_zero] = obj.decode(rec_words_with_zero);
-          rec_words_with_one = rec_words;
-          rec_words_with_one(rec_words==2) = 1;
-          [rec_corrected_with_one, mess_one, err_one] = obj.decode(rec_words_with_one);
-          if(length(err_zero)<length(err_one))
-              rec_corrected = rec_corrected_with_zero;
-              messages = mess_zero;
+          if(length(find(rec_words==2))>0)
+              rec_words_with_zero(rec_words==2) = 0;
+              [rec_corrected_with_zero, mess_zero, err_zero, status_zero] = obj.decode(rec_words_with_zero);
+              rec_words_with_one = rec_words;
+              rec_words_with_one(rec_words==2) = 1;
+              [rec_corrected_with_one, mess_one, err_one, status_one] = obj.decode(rec_words_with_one);
+              if(length(err_zero)<length(err_one) & status_zero==1)
+                  rec_corrected = rec_corrected_with_zero;
+                  messages = mess_zero;
+              else if(status_one==1)
+                  rec_corrected = rec_corrected_with_one;
+                  messages = mess_one;
+                  else
+                      'Error'
+                  end
+              end
           else
-              rec_corrected = rec_corrected_with_one;
-              messages = mess_one;
+              [rec_corrected messages err status] = obj.decode(rec_words);
+              if(status~=1)
+                  'Error'
+              end
           end
       end
    end

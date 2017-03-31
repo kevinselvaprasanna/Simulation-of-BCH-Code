@@ -31,7 +31,7 @@ rx = read_file('rx.txt', n);
 [rec_corrected, messages] = bch_code.decode_with_erasures(rx);
 
 out_file = fopen(out_file_name, 'w');
-for i = 1:s
+for i = 1:size(rx,1)
      fprintf(out_file, '%2d', rec_corrected(i, :));
      fprintf(out_file, '\n');
      fprintf(out_file, '%2d', messages(i, :));
