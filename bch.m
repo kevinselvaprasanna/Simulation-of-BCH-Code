@@ -53,7 +53,7 @@ classdef bch
               end
           end
       end
-      function [rec_corrected, messages] = decode(obj, rec_words)
+      function [rec_corrected, messages, err] = decode(obj, rec_words)
           H = parity_check(obj);
           [tot_r, r_size] = size(rec_words);
           rec_corrected = rec_words;
@@ -70,10 +70,25 @@ classdef bch
                       j = j + 1;
                   end
               end
-              err
+              err = err(err~=-1)
           end
           messages = rec_corrected(:, obj.n-obj.k+1:obj.n);
           % Incomplete
+      end
+      function  [rec_corrected, messages] = decode_with_erasures(obj, rec_words)
+          rec_words_with_zero = rec_words;
+          rec_words_with_zero(rec_words==2) = 0;
+          [rec_corrected_with_zero, mess_zero, err_zero] = obj.decode(rec_words_with_zero);
+          rec_words_with_one = rec_words;
+          rec_words_with_one(rec_words==2) = 1;
+          [rec_corrected_with_one, mess_one, err_one] = obj.decode(rec_words_with_one);
+          if(length(err_zero)<length(err_one))
+              rec_corrected = rec_corrected_with_zero;
+              messages = mess_zero;
+          else
+              rec_corrected = rec_corrected_with_one;
+              messages = mess_one;
+          end
       end
    end
 end
