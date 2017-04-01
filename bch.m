@@ -104,16 +104,14 @@ classdef bch
                       j = j + 1;
                   end
               end
-              syndrome_check = obj.syndrome(rec_corrected,H)
+              syndrome_check = obj.syndrome(rec_corrected,H);
               if(syndrome_check==0)
                   err = err(err~=-1)
               else
                   status = 0;
                   err = zeros(1, obj.t+1)-1;    
-                  rec_corrected(p,:) = zeros(1,obj.n)-1;
-                  messages = zeros(1,obj.k)-1;                  
+                  rec_corrected(p,:) = zeros(1,obj.n)-1;              
               end
-
           end
           messages = rec_corrected(:, obj.n - obj.k + 1:obj.n);
       end
@@ -127,7 +125,7 @@ classdef bch
           [tot_r, r_size] = size(rec_words);
           rec_corrected = rec_words;
           for p = 1:tot_r
-              if(length(find(rec_words(p,:)==2))>0)
+              if(~isempty(find(rec_words(p,:)==2, 1)))
                   rec_words_with_zero = rec_words(p,:);
                   rec_words_with_zero(rec_words(p,:)==2) = 0;
                   [rec_corrected_with_zero, mess_zero, err_zero, status_zero] = obj.decode(rec_words_with_zero);
@@ -141,17 +139,15 @@ classdef bch
                       rec_corrected(p,:) = rec_corrected_with_one;
                       rec_corrected(p,:)
                       else
-                          S=sprintf('Error: Number of errors and erasures is beyond correctable limit 2w+e>2d');
-                          disp(S)
+                          fprintf('Error: Number of errors and erasures is beyond correctable limit 2w+e>2t\n');
                           rec_corrected(p,:) = zeros(1,obj.n)-1;
                       end
                   end
               else
-                  [rec_corr mess er status] = obj.decode(rec_words(p,:));
+                  [rec_corr, mess, er, status] = obj.decode(rec_words(p,:));
                   rec_corrected(p,:) = rec_corr;
                   if(status~=1)
-                      S=sprintf('Error: Number of errors and erasures is beyond correctable limit 2w+e>2d');
-                      disp(S)
+                      fprintf('Error: Number of errors is beyond the correctable limit w>t\n');
                   end
               end
           end
