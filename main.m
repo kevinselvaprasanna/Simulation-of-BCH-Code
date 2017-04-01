@@ -1,3 +1,4 @@
+clear
 % File name to store/read the message word
 msg_file_name = 'msg.txt';
 % File name to store the codeword
